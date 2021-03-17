@@ -1,7 +1,9 @@
 ---
 title: "R assignment"
 author: "Sushma Ambekar"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -34,28 +36,30 @@ To get the data from the respository to R studio, I used the following code. It 
 fang_et_al_genotypes <- read.table("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2021/master/assignments/UNIX_Assignment/fang_et_al_genotypes.txt", header = TRUE, sep = "\t")
 snp_position <- read.table("https://raw.githubusercontent.com/EEOB-BioData/BCB546-Spring2021/master/assignments/UNIX_Assignment/snp_position.txt", header = TRUE, sep = "\t")
 ```
+
 #### File inspection
 
 str() outputs the internal structure of an R object, a diagnostic function and an alternative to summary()
 dim() gives the lengths of rows and colummns 
 colnames() displays the column names
+head() along with select() is being used here to show selected columns and rows
 
 ```{r}
-file.info("fang_et_al_genotypes")
-head(fang_et_al_genotypes, n = 5)
+head(fang_et_al_genotypes, n = 5) %>% select(1:5)
 str(fang_et_al_genotypes)
 dim(fang_et_al_genotypes)
 colnames(fang_et_al_genotypes)
+table(fang_et_al_genotypes$Group)
 ```
 
 
 
 ```{r}
-file.info("snp_position")
 dim(snp_position)
 str(snp_position)
 colnames(snp_position)
-head(snp_position, n = 5)
+head(snp_position, n = 5) %>% select(1:5)
+table(snp_position$Chromosome)
 ```
 
 
@@ -142,12 +146,42 @@ fang_transposed <- as.data.frame(t(fang_et_al_genotypes[,-1]))
 fang_transposed <- cbind(SNP_ID = row.names(fang_transposed), fang_transposed)
 merge_fang <- merge(snp_position, fang_transposed, by = "SNP_ID")
 merge_fang$Chromosome <- factor(merge_fang$Chromosome,levels = c(1:10,"unknown","multiple"))
-ggplot(merge_fang, aes(Chromosome)) + geom_bar(aes(x=Chromosome), color="black", fill="#FDB863") + labs(x="Chromosome",y="# of SNPs")
+ggplot(merge_fang, aes(Chromosome)) + geom_bar(aes(), fill="#FDB863") + theme_classic() + labs(x="Chromosome",y="# of SNPs")
 ```
+
 To see what groups contribute the most SNPs, we can do a simple plot with the original data.
 
 ```{r, echo=FALSE}
-ggplot(fang_et_al_genotypes, aes(Group)) + geom_bar() + theme_classic() + theme(axis.text.x = element_text(angle = 90))
+ggplot(fang_et_al_genotypes, aes(Group)) + geom_bar(aes(), fill="violetred4") + theme_classic() + theme(axis.text.x = element_text(angle = 90)) + labs(x="Group",y="# of SNPs")
+```
+
+To plot missing data and heterozygosity, we need to first process the files to show these data. We can create a new column that records whether the genotype characters match. In all of fang_et_al_genotypes, we can see a general proportion of homozygous to heterozygous to missing data. 
+
+```{r, echo=FALSE}
+fang_melted <- melt(fang_et_al_genotypes, id = c("Sample_ID", "Group"))
+fang_melted[fang_melted == "?/?" ] = NA
+fang_melted$Homozygous <- (fang_melted$value=="A/A" | fang_melted$value=="C/C" | fang_melted$value=="G/G" | fang_melted$value=="T/T")
+ggplot(fang_melted, aes(Homozygous)) + geom_bar(aes(), fill="deepskyblue4", width = 0.4) + theme_classic()
+```
+
+To group this data by the species and group we will make some new intermediate data frames.
+```{r, echo=FALSE}
+fang_melted_group <- fang_melted[order(fang_melted$Group),]
+fang_melted_ID <- fang_melted[order(fang_melted$Sample_ID),]
+```
+
+
+To get the proportion of homo/heterozygosity for each ordered dataframe, I summarized the 'Homozygous' column. 
+
+```{r}
+fang_melted_group_prop <- ddply(fang_melted_group, c("Group"), summarise, homo=sum(Homozygous, na.rm=TRUE), 
+                     heter=sum(Homozygous, na.rm=FALSE), NotValid=sum(is.na(Homozygous)))
+group_prop_melt <- melt(fang_melted_group_prop, measure.vars = c("homo", "heter", "NotValid"))
+fang_melted_ID_prop <- ddply(fang_melted_ID, c("Sample_ID"), summarise, homo=sum(Homozygous, na.rm=TRUE), 
+                     heter=sum(Homozygous, na.rm=FALSE), NotValid=sum(is.na(Homozygous)))
+ID_prop_melt <- melt(fang_melted_ID_prop, measure.vars = c("homo", "heter", "NotValid"))
+ggplot(group_prop_melt,aes(x = Group, y= value, fill=variable)) + geom_bar(stat = "identity", position = "stack") + theme_classic() + theme(axis.text.x = element_text(angle = 90))
+ggplot(ID_prop_melt,aes(x = Sample_ID, y= value, fill=variable)) + geom_bar(stat = "identity", position = "stack") + theme_classic()
 ```
 
 ```
