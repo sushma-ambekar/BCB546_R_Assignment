@@ -149,10 +149,28 @@ merge_fang$Chromosome <- factor(merge_fang$Chromosome,levels = c(1:10,"unknown",
 ggplot(merge_fang, aes(Chromosome)) + geom_bar(aes(), fill="#FDB863") + theme_classic() + labs(x="Chromosome",y="# of SNPs")
 ```
 
-To see what groups contribute the most SNPs, we can do a simple plot with the original data.
+#### Distribuition of SNPs along chromosomes
+
+In order to plot the distribution of the SNPs along the different chromosomes, I first removed "multiple" and "unique" from the data and then transformed Chromosome and Position columns as numerics.
+Maize SNPs along the chromosome are shown in as red points and teosinte SNPs are shown as blue.
 
 ```{r, echo=FALSE}
-ggplot(fang_et_al_genotypes, aes(Group)) + geom_bar(aes(), fill="violetred4") + theme_classic() + theme(axis.text.x = element_text(angle = 90)) + labs(x="Group",y="# of SNPs")
+mac_filtered <- filter(maize_all_chromosomes,Chromosome %in% c("1","2","3","4","5","6","7","8","9","10")&Position !="multiple")
+tac_filtered <- filter(teosinte_all_chromosomes,Chromosome %in% c("1","2","3","4","5","6","7","8","9","10")&Position !="multiple")
+
+mac_filtered <- transform(mac_filtered, Chromosome =as.numeric(Chromosome),Position =as.numeric(Position))
+tac_filtered <- transform(tac_filtered, Chromosome =as.numeric(Chromosome),Position =as.numeric(Position))
+
+mac_filtered <- arrange(mac_filtered,Chromosome, Position)
+tac_filtered <- arrange(tac_filtered,Chromosome,Position) 
+
+maize_melt <- melt(mac_filtered, id.vars =c("SNP_ID", "Chromosome", "Position"),variable.name = "corn",value.name = "base.composition")
+teosinte_melt <- melt(tac_filtered, id.vars =c("SNP_ID", "Chromosome", "Position"),variable.name = "corn",value.name = "base.composition")
+
+ggplot(data=maize_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="red", alpha=0.01) + scale_x_discrete(limits=c(1,2,3,4,5,6,7,8,9,10)) + theme_classic()
+
+ggplot(data=teosinte_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="blue", alpha=0.01) + scale_x_discrete(limits=c(1,2,3,4,5,6,7,8,9,10)) + theme_classic()
+
 ```
 
 To plot missing data and heterozygosity, we need to first process the files to show these data. We can create a new column that records whether the genotype characters match. In all of fang_et_al_genotypes, we can see a general proportion of homozygous to heterozygous to missing data. 
@@ -164,7 +182,8 @@ fang_melted$Homozygous <- (fang_melted$value=="A/A" | fang_melted$value=="C/C" |
 ggplot(fang_melted, aes(Homozygous)) + geom_bar(aes(), fill="deepskyblue4", width = 0.4) + theme_classic()
 ```
 
-To group this data by the species and group we will make some new intermediate data frames.
+To group this data by the species and group I made some intermediate data frames.
+
 ```{r, echo=FALSE}
 fang_melted_group <- fang_melted[order(fang_melted$Group),]
 fang_melted_ID <- fang_melted[order(fang_melted$Sample_ID),]
@@ -182,6 +201,11 @@ fang_melted_ID_prop <- ddply(fang_melted_ID, c("Sample_ID"), summarise, homo=sum
 ID_prop_melt <- melt(fang_melted_ID_prop, measure.vars = c("homo", "heter", "NotValid"))
 ggplot(group_prop_melt,aes(x = Group, y= value, fill=variable)) + geom_bar(stat = "identity", position = "stack") + theme_classic() + theme(axis.text.x = element_text(angle = 90))
 ggplot(ID_prop_melt,aes(x = Sample_ID, y= value, fill=variable)) + geom_bar(stat = "identity", position = "stack") + theme_classic()
+```
+As a part of visulaizing something I was interested in, I chose to look at what groups contribute the most number of SNPs from the fang_et_al_genotypes data set. ZMMLR seemed to be the highest.
+
+```{r, echo=FALSE}
+ggplot(fang_et_al_genotypes, aes(Group)) + geom_bar(aes(), fill="violetred4") + theme_classic() + theme(axis.text.x = element_text(angle = 90)) + labs(x="Group",y="# of SNPs")
 ```
 
 ```
