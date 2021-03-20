@@ -167,9 +167,9 @@ tac_filtered <- arrange(tac_filtered,Chromosome,Position)
 maize_melt <- melt(mac_filtered, id.vars =c("SNP_ID", "Chromosome", "Position"),variable.name = "corn",value.name = "base.composition")
 teosinte_melt <- melt(tac_filtered, id.vars =c("SNP_ID", "Chromosome", "Position"),variable.name = "corn",value.name = "base.composition")
 
-ggplot(data=maize_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="red", alpha=0.01) + scale_x_discrete(limits=c(1,2,3,4,5,6,7,8,9,10)) + theme_classic()
+ggplot(data=maize_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="red", alpha=0.01) + scale_x_discrete(limits=c(1:10)) + theme_classic()
 
-ggplot(data=teosinte_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="blue", alpha=0.01) + scale_x_discrete(limits=c(1,2,3,4,5,6,7,8,9,10)) + theme_classic()
+ggplot(data=teosinte_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="blue", alpha=0.01) + scale_x_discrete(limits=c(1:10)) + theme_classic()
 
 ```
 
