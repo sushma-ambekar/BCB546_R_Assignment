@@ -1,0 +1,39 @@
+---
+title: "Vang_Review"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Vang Review for Sushma 
+
+Part 1 Comments:
+
+-   Data inspection: Everything ran smoothly and all of the codes used were used correctly to inspect the data files.
+
+Part 2 Comments:
+
+-   I got this warning message from running the following codes; you may need to change your scaling accordingly:
+
+    -   *"Warning message: Continuous limits supplied to discrete scale. Did you mean \`limits = factor(...)\` or \`scale\_\*\_continuous()\`?"*
+
+        ```{r}
+        ggplot(data=maize_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="red", alpha=0.01) + scale_x_discrete(limits=c(1:10)) + theme_classic()
+
+        ggplot(data=teosinte_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="blue", alpha=0.01) + scale_x_discrete(limits=c(1:10)) + theme_classic()
+        ```
+
+-   For this heterozygosity plot, I wasn't sure what you were trying to do here; it seems like your codes for plotting heterozygosity by Sample_ID and Group_ID were already fulfilled in the codes that follow after this:
+
+    ```{r}
+    fang_melted <- melt(fang_et_al_genotypes, id = c("Sample_ID", "Group"))
+    fang_melted[fang_melted == "?/?" ] = NA
+    fang_melted$Homozygous <- (fang_melted$value=="A/A" | fang_melted$value=="C/C" | fang_melted$value=="G/G" | fang_melted$value=="T/T")
+    ggplot(fang_melted, aes(Homozygous)) + geom_bar(aes(), fill="deepskyblue4", width = 0.4) + theme_classic()
+    ```
+
+-   Is it possible to rename the variable in your Sample_ID and Group_ID heterozygosity plots? As of right now, I think you have them labeled as "homo" and "NotValid." Also - did you have a variable to represent the missing values? Or did you decide to just include missing values in the "NotValid" variable?
+
+-   Your third plot looks great!
