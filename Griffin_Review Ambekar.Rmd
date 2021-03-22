@@ -1,0 +1,70 @@
+---
+title: "Griffin_Review Ambekar"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+###Brianna D. Griffin Review of Sushma Ambekar Assignment 
+
+#General Comment: it would be nice if you use the ### symbols when writing comments as it makes it stand out on markdowns and easier to read in between your code
+
+#File inspection looks nice, everything ran well 
+
+#During the next section I kept getting and errors (though the code seems to have ran still) 
+#your code line 167-172
+
+```{r}
+maize_melt <- melt(mac_filtered, id.vars =c("SNP_ID", "Chromosome", "Position"),variable.name = "corn",value.name = "base.composition")
+```
+
+# 'Warning message:attributes are not identical across measure variables; they will be dropped'
+
+```{r}
+teosinte_melt <- melt(tac_filtered, id.vars =c("SNP_ID", "Chromosome", "Position"),variable.name = "corn",value.name = "base.composition")
+```
+
+#'Warning message:attributes are not identical across measure variables; they will be dropped'
+
+```{r}
+ggplot(data=maize_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="red", alpha=0.01) + scale_x_discrete(limits=c(1:10)) + theme_classic()
+```
+
+#Warning message:Continuous limits supplied to discrete scale.Did you mean `limits = factor(...)` or `scale_*_continuous()`?'
+
+```{r}
+ggplot(data=teosinte_melt) + geom_point(mapping=aes(x=Chromosome,y=Position), colour="blue", alpha=0.01) + scale_x_discrete(limits=c(1:10)) + theme_classic()
+```
+
+#'Warning message:Continuous limits supplied to discrete scale.Did you mean `limits = factor(...)` or `scale_*_continuous()`? 
+
+#I am not sure if these errors are important or not as it seems to have still ran without a problem, but maybe something worth looking into 
+
+# 179 threw the same error (Cattributes are not identical across measre cariables)
+
+#line 202 and 203 threw a different error 
+
+```{r} 
+ggplot(group_prop_melt,aes(x = Group, y= value, fill=variable)) + geom_bar(stat = "identity", position = "stack") + theme_classic() + theme(axis.text.x = element_text(angle = 90))
+```
+
+#Warning message:Removed 16 rows containing missing values (position_stack). 
+
+```{r} 
+ggplot(ID_prop_melt,aes(x = Sample_ID, y= value, fill=variable)) + geom_bar(stat = "identity", position = "stack") + theme_classic()
+```
+
+#Warning message:Removed 2782 rows containing missing values (position_stack). 
+
+#again not sure if these are important as the code ran well and the graphs look awesome 
+
+#Overall I had no issues and everything ran smoothly. I just wanted to bring the warning messages to your attention in case they didnt show up on your console.
+#Nice job! 
+
+
+
+
+
+
+
+
